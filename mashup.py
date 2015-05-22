@@ -12,6 +12,15 @@
 
 import re, requests
 from BeautifulSoup import BeautifulSoup
+import argparse
+
+parser = argparse.ArgumentParser(description='Health inspections reports.')
+parser.add_argument('-s', '--score', default='highestscore', help='highestscore (default) or mostinspections')
+parser.add_argument('-m', '--map', default=25, help='number of points to map - default is 25')
+parser.add_argument('-o', '--order', default='forward', help='forward (default) or backwards')
+args = parser.parse_args()
+
+#print "args: %s %s %s" % (args.score, args.map, args.order)
 
 #http://info.kingcounty.gov/health/ehs/foodsafety/inspections/Results.aspx?Zip_Code=98103
 
@@ -67,25 +76,21 @@ def load_inspection_page(name):
         return content, 'utf-8'
 
 def has_two_tds(elem):
-    print "elem.name=%s" % elem.name
+    # If I pass a tr elem in, by the time it gets here it's a td.. weird
+    # so... not using this right now
     is_tr = elem.name == 'tr'
     td_children = elem.findAll('td', recursive=False)
     has_two = len(td_children) == 2
-    #print "is_tr %s, has_two %s" % (is_tr, has_two)
     return is_tr and has_two
 
 def parse_business(parsed):
 
     ## Display first td with id contentcol
     content_col = parsed.find("td", id="contentcol")
-    #print "content_col.type %s" % type(content_col)
-    #print content_col.prettify(encoding=encoding)
 
     ## Display all divs with id like PR[digits]
     id_finder = re.compile(r'PR[\d]+~')
-    #return html.find_all('div', id=id_finder)
     data_list = content_col.findAll('div', id=id_finder)
-    #print data_list[0].prettify()
 
     ## Find all trs
     data_tr = data_list[0].findAll('tr')
@@ -94,12 +99,12 @@ def parse_business(parsed):
     for trs in data_tr:
 
         ## Now find all trs where two tds exist
-        print "%s......" % (trs.name)
-        has_two = trs.findAll(has_two_tds, recursive=False)
-        #if has_two:
-        #    print "has two!!"
-        #else:
-        #    print "these are not the droids you want"
+        if trs.name == "tr":
+            td_children = trs.findAll('td', recursive=False)
+            if len(td_children) == 2:
+
+                for tds in td_children:
+                    print tds
 
         #for tds in data_td_hastwo:
         #    print "%s ......" % tds

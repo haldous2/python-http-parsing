@@ -4,7 +4,15 @@ import geocoder
 import json
 import re
 import requests
+import argparse
 
+parser = argparse.ArgumentParser(description='Health inspections reports.')
+parser.add_argument('-s', '--score', default='highestscore', help='highestscore (default) or mostinspections')
+parser.add_argument('-m', '--map', default=25, help='number of points to map - default is 25')
+parser.add_argument('-o', '--order', default='forward', help='forward (default) or backwards')
+args = parser.parse_args()
+
+#print "args: %s %s %s" % (args.score, args.map, args.order)
 
 INSPECTION_DOMAIN = 'http://info.kingcounty.gov'
 INSPECTION_PATH = '/health/ehs/foodsafety/inspections/Results.aspx'
